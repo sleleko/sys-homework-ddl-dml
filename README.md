@@ -186,4 +186,71 @@ store            | store_id
 ```
 Примечание: Таблицы `film_actor` и `film_category` имеют композитные (составные) первичные ключи
 
-### Задание 3
+### Задание 3*
+
+Так как у пользователя `sys_temp` выданы ранее полные права, то сперва их нужно забрать, а затем выдать только разрешенные на базу `sakila`
+
+Для этого вхожу под рутом в mysql
+```shell
+docker exec -it mysql-sakila-ddl-dml mysql -uroot -prootpass
+```
+
+Далее запросы внутри mysql:
+
+3.1. Забираю все права у `sys_temp`
+```sql
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'sys_temp'@'%';
+```
+
+Выдаю только нужные и обновляю привилегии:
+```sql
+GRANT SELECT, 
+      CREATE, 
+      ALTER, 
+      DROP, 
+      INDEX, 
+      REFERENCES, 
+      CREATE VIEW, 
+      SHOW VIEW, 
+      TRIGGER, 
+      EVENT, 
+      EXECUTE, 
+      CREATE ROUTINE, 
+      ALTER ROUTINE, 
+      LOCK TABLES
+ON sakila.* TO 'sys_temp'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+3.2. Проверяю какие права есть у пользователя `sys_temp`
+```sql
+SHOW GRANTS FOR 'sys_temp'@'%';
+```
+![Результат выполнения запросов](img/db-revoke-priv-regrant.png)
+
+#### Простыня всех запросов
+```sql
+-- 3.1. Забираю все права у `sys_temp`
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'sys_temp'@'%';
+-- 3.1 Выдаю только нужные и обновляю привилегии:
+GRANT SELECT,
+      CREATE,
+      ALTER,
+      DROP,
+      INDEX,
+      REFERENCES,
+      CREATE VIEW,
+      SHOW VIEW,
+      TRIGGER,
+      EVENT,
+      EXECUTE,
+      CREATE ROUTINE,
+      ALTER ROUTINE,
+      LOCK TABLES
+      ON sakila.* TO 'sys_temp'@'%';
+
+FLUSH PRIVILEGES;
+-- 3.2. проверяю какие права есть у пользователя `sys_temp`
+SHOW GRANTS FOR 'sys_temp'@'%';
+```
